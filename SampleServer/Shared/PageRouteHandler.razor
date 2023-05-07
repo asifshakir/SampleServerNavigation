@@ -1,0 +1,41 @@
+﻿@page "/{PageCode:int}"
+@using Microsoft.AspNetCore.Components
+@using SampleServer.Pages;
+
+<CascadingValue Value="@this">
+    <DynamicComponent Type="@ComponentType" />
+</CascadingValue>
+
+
+@code {
+    [Parameter]
+    public int PageCode { get; set; }
+    private Dictionary<int, string> routes = new() {
+        { 1001, "Counter" },
+        { 1002, "FetchData" },
+        { 1003, "Contact" }
+    };
+
+    private Type defaultScreen = typeof(Dashboard);
+    private Type? _componentType;
+
+    private Type ComponentType => GetComponent();
+
+    protected override void OnParametersSet()
+    {
+        _componentType = GetPageType(routes[PageCode]);
+    }
+
+    public Type GetComponent()
+    {
+        return _componentType ?? defaultScreen;
+    }
+
+    private Type? GetPageType(string Page) => Type.GetType($"SampleServer.Pages.{Page}, SampleServer");
+
+    public void SetComponent(string route) 
+    {
+        _componentType = GetPageType(route) ?? defaultScreen;
+        StateHasChanged();
+    }
+}

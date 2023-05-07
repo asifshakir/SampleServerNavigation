@@ -1,0 +1,41 @@
+﻿@inject NavigationManager NavigationManager
+@code {
+    [Parameter]
+    public string PageCode { get; set; } = "";
+
+    private bool _hasNavigated = false;
+
+    protected override void OnInitialized()
+    {
+        if (!_hasNavigated && !string.IsNullOrEmpty(PageCode))
+        {
+            // Get the route for the specified Page Code from your database
+            string route = GetRouteFromDatabase(PageCode);
+
+            if (string.IsNullOrEmpty(route))
+            {
+                // If no route is found for the specified Page Code, show a 404 error page
+                NavigationManager.NavigateTo("/404");
+            }
+            else
+            {
+                // Navigate to the route
+                NavigationManager.NavigateTo(route, false);
+            }
+
+            _hasNavigated = true;
+        }
+    }
+
+    private string GetRouteFromDatabase(string pageCode)
+    {
+        Dictionary<string, string> routes = new Dictionary<string, string>
+        {
+            { "1001", "/counter" },
+            { "1002", "/fetchdata" },
+            { "1003", "/contact" }
+        };
+
+        return routes.ContainsKey(pageCode) ? routes[pageCode] : "Dashboard";
+    }
+}
